@@ -927,6 +927,30 @@ html, body {
   to { transform: rotate(360deg); }
 }
 
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gradient-amber);
+  color: #0a0e1a;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+  font-size: 24px;
+  transition: all var(--transition-fast);
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.92);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .sidebar {
@@ -960,25 +984,6 @@ html, body {
   .mobile-menu-btn {
     display: flex;
   }
-}
-
-.mobile-menu-btn {
-  display: none;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 150;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gradient-amber);
-  color: #0a0e1a;
-  border: none;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-md);
-  font-size: 24px;
 }
 
 /* ===== SCROLLBAR ===== */
