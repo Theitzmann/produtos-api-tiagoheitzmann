@@ -81,28 +81,28 @@ export default function FinanceiroPage() {
 
         {/* Stats */}
         <div className="stats-grid">
-          <div className="stat-card green">
+          <div className="stat-card green hover-card" onClick={() => setFiltro('CONCLUIDO')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon green"><CheckCircle size={24} /></div>
             <div className="stat-value">{concluidos.length}</div>
             <div className="stat-label">Serviços Concluídos</div>
           </div>
-          <div className="stat-card blue">
+          <div className="stat-card blue hover-card" onClick={() => setFiltro('EM_ANDAMENTO')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon blue"><Clock size={24} /></div>
             <div className="stat-value">{emAndamento.length}</div>
             <div className="stat-label">Em Andamento</div>
           </div>
-          <div className="stat-card amber">
+          <div className="stat-card amber hover-card" onClick={() => setFiltro('AGENDADO')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon amber"><FileText size={24} /></div>
             <div className="stat-value">{agendados.length}</div>
             <div className="stat-label">Agendados</div>
           </div>
-          <div className="stat-card purple">
+          <div className="stat-card purple hover-card" onClick={() => setFiltro('TODOS')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon purple"><DollarSign size={24} /></div>
             <div className="stat-value">{comValor.length}</div>
             <div className="stat-label">Com Valor Definido</div>
           </div>
           {semPagamento.length > 0 && (
-            <div className="stat-card red">
+            <div className="stat-card red hover-card" onClick={() => setFiltro('TODOS')} style={{ cursor: 'pointer' }}>
               <div className="stat-icon red"><TrendingUp size={24} /></div>
               <div className="stat-value">{semPagamento.length}</div>
               <div className="stat-label">Sem Forma de Pagamento</div>

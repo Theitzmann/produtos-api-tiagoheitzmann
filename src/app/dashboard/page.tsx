@@ -81,27 +81,27 @@ export default function DashboardPage() {
 
         {/* Stats */}
         <div className="stats-grid">
-          <div className="stat-card amber">
+          <div className="stat-card amber" onClick={() => router.push('/dashboard/veiculos')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon amber"><Truck size={24} /></div>
             <div className="stat-value">{veiculos.length}</div>
             <div className="stat-label">Total de Veículos</div>
           </div>
-          <div className="stat-card green">
+          <div className="stat-card green" onClick={() => router.push('/dashboard/veiculos')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon green"><CheckCircle2 size={24} /></div>
             <div className="stat-value">{veiculosDisponiveis}</div>
             <div className="stat-label">Disponíveis</div>
           </div>
-          <div className="stat-card blue">
+          <div className="stat-card blue" onClick={() => router.push('/dashboard/veiculos')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon blue"><Construction size={24} /></div>
             <div className="stat-value">{veiculosEmUso}</div>
             <div className="stat-label">Em Uso</div>
           </div>
-          <div className="stat-card red">
+          <div className="stat-card red" onClick={() => router.push('/dashboard/veiculos')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon red"><Wrench size={24} /></div>
             <div className="stat-value">{veiculosManutencao}</div>
             <div className="stat-label">Em Manutenção</div>
           </div>
-          <div className="stat-card purple">
+          <div className="stat-card purple" onClick={() => router.push('/dashboard/funcionarios')} style={{ cursor: 'pointer' }}>
             <div className="stat-icon purple"><Users size={24} /></div>
             <div className="stat-value">{funcTrabalhando}/{funcionarios.length}</div>
             <div className="stat-label">Funcionários Ativos</div>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 const all = veiculosPorTipo(tipo);
                 const disp = all.filter((v: any) => v.status === 'DISPONIVEL').length;
                 return (
-                  <div key={tipo} style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', padding: 16, border: '1px solid var(--border-color)' }}>
+                  <div key={tipo} onClick={() => router.push('/dashboard/veiculos')} style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', padding: 16, border: '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.2s' }} className="hover-card">
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{tipoVeiculoLabels[tipo]}</div>
                     <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{disp}<span style={{ fontSize: '0.9rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/{all.length}</span></div>
                     <div style={{ fontSize: '0.8rem', color: disp > 0 ? 'var(--green-400)' : 'var(--red-400)' }}>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
 
         {/* Pending Assignment Alert (for OPERACIONAL) */}
         {servicosPendentes.length > 0 && (
-          <div style={{ background: 'var(--amber-glow)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 'var(--radius-md)', padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div onClick={() => router.push('/dashboard/servicos')} style={{ background: 'var(--amber-glow)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 'var(--radius-md)', padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', transition: 'all 0.2s' }} className="hover-card">
             <AlertTriangle size={20} style={{ color: 'var(--amber-400)', flexShrink: 0 }} />
             <div>
               <strong style={{ color: 'var(--amber-400)' }}>{servicosPendentes.length} OS pendente{servicosPendentes.length > 1 ? 's' : ''} de alocação</strong>
