@@ -36,7 +36,9 @@ export async function POST(request: Request) {
     if (!data.cliente?.trim()) errors.push('Nome do cliente é obrigatório');
     if (!data.localidade?.trim()) errors.push('Localidade é obrigatória');
     if (!data.dataInicio) errors.push('Data de início é obrigatória');
-    const veiculoIds: number[] = Array.isArray(data.veiculoIds) ? data.veiculoIds.map(Number) : [];
+    const veiculoIds: number[] = Array.isArray(data.veiculoIds)
+      ? data.veiculoIds.map(Number).filter(Boolean)
+      : data.veiculoId ? [Number(data.veiculoId)] : [];
     if (veiculoIds.length === 0 && !data.tipoVeiculoSolicitado?.trim()) {
       errors.push('Especifique um veículo ou tipo de veículo');
     }
@@ -69,7 +71,7 @@ export async function POST(request: Request) {
           tipoServico: data.tipoServico || null,
           valores: data.valores?.trim() || null,
           formaPagamento: data.formaPagamento?.trim() || null,
-          criadoPorId: session.id,
+          criadoPorId: Number(session.id),
           veiculosAlocados: veiculoIds.length > 0
             ? { create: veiculoIds.map(vid => ({ veiculoId: vid })) }
             : undefined,

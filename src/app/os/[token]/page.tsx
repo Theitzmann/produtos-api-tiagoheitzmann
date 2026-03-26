@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 
 interface OsData {
   id: number;
+  numeroOS: number | null;
   cliente: string;
   localidade: string;
   descricao: string | null;
@@ -13,6 +14,7 @@ interface OsData {
   tipoVeiculoSolicitado: string | null;
   qtdVeiculos: number;
   veiculo: { apelido: string | null; nome: string; tipo: string; placa: string; capacidade: number | null } | null;
+  veiculosAlocados: Array<{ veiculo: { apelido: string | null; nome: string; tipo: string; placa: string; capacidade: number | null } }>;
   funcionario: { nome: string; funcao: string; telefone: string | null } | null;
 }
 
@@ -59,7 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
   const os = await getOs(token);
   if (!os) return { title: 'OS não encontrada — KLM Guindastes' };
 
-  const osNum = os.id.toString().padStart(4, '0');
+  const osNum = (os.numeroOS ?? os.id).toString().padStart(4, '0');
   return {
     title: `OS #${osNum} — KLM Guindastes`,
     description: `${os.cliente} · ${os.localidade} · ${new Date(os.dataInicio).toLocaleDateString('pt-BR')}`,
@@ -77,7 +79,7 @@ export default async function OsPublicPage({ params }: { params: Promise<{ token
   const os = await getOs(token);
   if (!os) notFound();
 
-  const osNum = os.id.toString().padStart(4, '0');
+  const osNum = (os.numeroOS ?? os.id).toString().padStart(4, '0');
   const dataInicio = new Date(os.dataInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
   const dataFim = os.dataFim ? new Date(os.dataFim).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : null;
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(os.localidade)}`;
@@ -146,8 +148,18 @@ export default async function OsPublicPage({ params }: { params: Promise<{ token
         </div>
 
         <div className="section">
-          <div className="section-label">Veículo</div>
-          {os.veiculo ? (
+          <div className="section-label">Veículo{os.veiculosAlocados.length > 1 ? 's' : ''}</div>
+          {os.veiculosAlocados.length > 0 ? (
+            os.veiculosAlocados.map((sv, i) => (
+              <div key={i} style={{ marginTop: i > 0 ? 8 : 0 }}>
+                <div className="section-value">{sv.veiculo.apelido || sv.veiculo.nome}</div>
+                <div className="section-sub">
+                  {tipoLabels[sv.veiculo.tipo] || sv.veiculo.tipo} · {sv.veiculo.placa}
+                  {sv.veiculo.capacidade ? ` · ${sv.veiculo.capacidade}t` : ''}
+                </div>
+              </div>
+            ))
+          ) : os.veiculo ? (
             <>
               <div className="section-value">{os.veiculo.apelido || os.veiculo.nome}</div>
               <div className="section-sub">

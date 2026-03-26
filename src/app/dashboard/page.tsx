@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const handleWhatsApp = async (s: any) => {
     const url = await getOrCreateToken(s.id);
     if (!url) { showToast('Erro ao gerar link'); return; }
-    const osNum = s.id.toString().padStart(4, '0');
+    const osNum = (s.numeroOS ?? s.id).toString().padStart(4, '0');
     const text = `OS #${osNum} — KLM Guindastes\nAcesse os detalhes da sua ordem de serviço:\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -80,7 +80,7 @@ export default function DashboardPage() {
   const veiculosManutencao = veiculos.filter((v: any) => v.status === 'MANUTENCAO').length;
   const funcTrabalhando = funcionarios.filter((f: any) => f.status === 'TRABALHANDO').length;
   const servicosAtivos = servicos.filter((s: any) => s.status === 'EM_ANDAMENTO' || s.status === 'AGENDADO');
-  const servicosPendentes = servicos.filter((s: any) => s.status === 'AGENDADO' && !s.veiculoId);
+  const servicosPendentes = servicos.filter((s: any) => s.status === 'AGENDADO' && !s.veiculoId && (!s.veiculosAlocados || s.veiculosAlocados.length === 0));
   const isFinanceiro = user?.cargo === 'FINANCEIRO';
   const isOperacional = user?.cargo === 'OPERACIONAL';
 
@@ -188,11 +188,13 @@ export default function DashboardPage() {
                   <div className="job-card-detail">
                     <Truck size={14} />
                     <span>
-                      {s.veiculo ? (s.veiculo.apelido || s.veiculo.nome) : (
-                        <span style={{ color: 'var(--amber-400)' }}>
-                          {s.qtdVeiculos}x {tipoVeiculoLabels[s.tipoVeiculoSolicitado] || s.tipoVeiculoSolicitado} — Aguardando alocação
-                        </span>
-                      )}
+                      {s.veiculosAlocados?.length > 0
+                        ? s.veiculosAlocados.map((sv: any) => sv.veiculo?.apelido || sv.veiculo?.nome).filter(Boolean).join(', ')
+                        : s.veiculo ? (s.veiculo.apelido || s.veiculo.nome) : (
+                          <span style={{ color: 'var(--amber-400)' }}>
+                            {s.qtdVeiculos}x {tipoVeiculoLabels[s.tipoVeiculoSolicitado] || s.tipoVeiculoSolicitado} — Aguardando alocação
+                          </span>
+                        )}
                     </span>
                   </div>
                   {s.funcionario && <div className="job-card-detail"><User size={14} /><span>{s.funcionario.nome}</span></div>}
@@ -285,20 +287,20 @@ export default function DashboardPage() {
           <div className="modal-overlay" onClick={() => setOsPreview(null)}>
             <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
               <div className="modal-header">
-                <h3 className="modal-title">Ordem de Serviço #{osPreview.id.toString().padStart(4, '0')}</h3>
+                <h3 className="modal-title">Ordem de Serviço #{(osPreview.numeroOS ?? osPreview.id).toString().padStart(4, '0')}</h3>
                 <button className="modal-close" onClick={() => setOsPreview(null)}>✕</button>
               </div>
               <div className="modal-body">
                 <div className="os-card">
                   <div className="os-card-header">
                     <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: 1, color: 'var(--amber-400)' }}>KLM Guindastes — Ordem de Serviço</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: 4 }}>OS #{osPreview.id.toString().padStart(4, '0')}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: 4 }}>OS #{(osPreview.numeroOS ?? osPreview.id).toString().padStart(4, '0')}</div>
                   </div>
                   <div className="os-card-body">
                     <div className="os-field"><Truck size={14} /><div><strong>Cliente:</strong> {osPreview.cliente}</div></div>
                     <div className="os-field"><MapPin size={14} /><div><strong>Local:</strong> {osPreview.localidade}</div></div>
                     <div className="os-field"><Calendar size={14} /><div><strong>Data:</strong> {new Date(osPreview.dataInicio).toLocaleDateString('pt-BR')}{osPreview.dataFim ? ` até ${new Date(osPreview.dataFim).toLocaleDateString('pt-BR')}` : ''}</div></div>
-                    <div className="os-field"><Truck size={14} /><div><strong>Veículo:</strong> {osPreview.veiculo ? (osPreview.veiculo.apelido || osPreview.veiculo.nome) : 'A definir'}</div></div>
+                    <div className="os-field"><Truck size={14} /><div><strong>Veículo{(osPreview.veiculosAlocados?.length || 0) > 1 ? 's' : ''}:</strong> {osPreview.veiculosAlocados?.length > 0 ? osPreview.veiculosAlocados.map((sv: any) => sv.veiculo?.apelido || sv.veiculo?.nome).filter(Boolean).join(', ') : osPreview.veiculo ? (osPreview.veiculo.apelido || osPreview.veiculo.nome) : 'A definir'}</div></div>
                     {osPreview.funcionario && <div className="os-field"><User size={14} /><div><strong>Operador:</strong> {osPreview.funcionario.nome}</div></div>}
                     {osPreview.descricao && <div className="os-field"><FileText size={14} /><div><strong>Descrição:</strong> {osPreview.descricao}</div></div>}
                     {osPreview.solicitante && <div className="os-field"><User size={14} /><div><strong>Responsável:</strong> {osPreview.solicitante}</div></div>}
