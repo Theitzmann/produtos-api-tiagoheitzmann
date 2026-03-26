@@ -18,15 +18,16 @@ model Usuario {
 }
 
 model Veiculo {
-  id          Int       @id @default(autoincrement())
-  nome        String
-  apelido     String?   // Internal nickname e.g. "Munck 01", "Guindaste 40"
-  tipo        String    // MUNCK | GUINDASTE | EMPILHADEIRA
-  placa       String    @unique
-  capacidade  Float?
-  status      String    @default("DISPONIVEL") // DISPONIVEL | EM_USO | MANUTENCAO
-  observacoes String?
-  servicos    Servico[]
+  id               Int              @id @default(autoincrement())
+  nome             String
+  apelido          String?          // Internal nickname e.g. "Munck 01", "Guindaste 40"
+  tipo             String           // MUNCK | GUINDASTE | EMPILHADEIRA
+  placa            String           @unique
+  capacidade       Float?
+  status           String           @default("DISPONIVEL") // DISPONIVEL | EM_USO | MANUTENCAO
+  observacoes      String?
+  servicos         Servico[]
+  servicosAlocados ServicoVeiculo[]
 }
 
 model Funcionario {
@@ -40,36 +41,47 @@ model Funcionario {
 }
 
 model Servico {
-  id                    Int          @id @default(autoincrement())
+  id                    Int              @id @default(autoincrement())
+  numeroOS              Int?             @unique // Sequential display number, never reused
   // Client info
   cliente               String
   localidade            String
   descricao             String?
   // Requester / contact
-  solicitante           String?      // Name of the person who requested
-  contatoPagamento      String?      // Phone of person responsible for payment
+  solicitante           String?
+  contatoPagamento      String?
   // Scheduling
   dataInicio            DateTime
   dataFim               DateTime?
-  status                String       @default("AGENDADO") // AGENDADO | EM_ANDAMENTO | CONCLUIDO | CANCELADO
+  status                String           @default("AGENDADO") // AGENDADO | EM_ANDAMENTO | CONCLUIDO | CANCELADO
   // Two-step scheduling: first by type, then assign specific vehicle
-  tipoVeiculoSolicitado String?      // MUNCK | GUINDASTE | EMPILHADEIRA (when no specific vehicle yet)
-  qtdVeiculos           Int          @default(1) // How many vehicles needed of this type
-  veiculoId             Int?         // Nullable: assigned later by operational manager
+  tipoVeiculoSolicitado String?
+  qtdVeiculos           Int              @default(1)
+  veiculoId             Int?             // Legacy single-vehicle FK (kept for backward compat)
   // Personnel
-  funcionarioId         Int?         // Also optional initially
+  funcionarioId         Int?
   // Service type & pricing (Finance)
-  tipoServico           String?      // POR_HORA | POR_HORA_KM
-  valores               String?      // Pricing details (free text)
-  formaPagamento        String?      // Payment method
-  // Public sharing token (generated on demand for WhatsApp sharing)
-  tokenPublico          String?      @unique
+  tipoServico           String?
+  valores               String?
+  formaPagamento        String?
+  // Public sharing token
+  tokenPublico          String?          @unique
   tokenExpiraEm         DateTime?
   // Meta
   criadoPorId           Int
-  criadoEm              DateTime     @default(now())
+  criadoEm              DateTime         @default(now())
   // Relations
-  veiculo               Veiculo?     @relation(fields: [veiculoId], references: [id])
-  funcionario           Funcionario? @relation(fields: [funcionarioId], references: [id])
-  criadoPor             Usuario      @relation(fields: [criadoPorId], references: [id])
+  veiculo               Veiculo?         @relation(fields: [veiculoId], references: [id])
+  veiculosAlocados      ServicoVeiculo[]
+  funcionario           Funcionario?     @relation(fields: [funcionarioId], references: [id])
+  criadoPor             Usuario          @relation(fields: [criadoPorId], references: [id])
+}
+
+model ServicoVeiculo {
+  servicoId Int
+  veiculoId Int
+  servico   Servico @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  veiculo   Veiculo @relation(fields: [veiculoId], references: [id])
+
+  @@id([servicoId, veiculoId])
 }
