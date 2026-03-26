@@ -142,3 +142,16 @@ export const statusServicoLabels: Record<string, string> = {
   CONCLUIDO: 'Concluído',
   CANCELADO: 'Cancelado',
 };
+
+// ===== OS Sharing =====
+export function generateOsText(s: any): string {
+  return `*OS #${s.id.toString().padStart(4, '0')} — KLM Guindastes*\n` +
+    `📋 Cliente: ${s.cliente}\n` +
+    `📍 Local: ${s.localidade}\n` +
+    `📅 Data: ${new Date(s.dataInicio).toLocaleDateString('pt-BR')}${s.dataFim ? ` até ${new Date(s.dataFim).toLocaleDateString('pt-BR')}` : ''}\n` +
+    `🚛 Veículo: ${s.veiculo ? (s.veiculo.apelido || s.veiculo.nome) : 'A definir'}\n` +
+    (s.funcionario ? `👷 Operador: ${s.funcionario.nome}\n` : '') +
+    (s.descricao ? `📝 Descrição: ${s.descricao}\n` : '') +
+    (s.solicitante ? `👤 Responsável: ${s.solicitante}\n` : '') +
+    `\n_KLM Guindastes — Qualidade com Segurança_`;
+}

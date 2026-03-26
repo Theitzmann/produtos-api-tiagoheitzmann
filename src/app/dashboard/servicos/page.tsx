@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, X, MapPin, Calendar, Eye, Truck, User, Phone, DollarSign, Copy, AlertTriangle, FileText } from 'lucide-react';
-import { Sidebar, StatusBadge, tipoVeiculoLabels, tipoServicoLabels, statusServicoLabels, formatBrazilianPhone, isValidBrazilianPhone } from '@/components/shared';
+import { Plus, X, MapPin, Calendar, Eye, Truck, User, Phone, DollarSign, AlertTriangle, FileText, Share2, Link } from 'lucide-react';
+import { Sidebar, StatusBadge, tipoVeiculoLabels, tipoServicoLabels, statusServicoLabels, formatBrazilianPhone, isValidBrazilianPhone, generateOsText } from '@/components/shared';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -131,17 +131,36 @@ export default function ServicosPage() {
     showToast('OS excluída');
   };
 
-  const generateOsText = (s: any) => {
-    return `*OS #${s.id.toString().padStart(4, '0')} — KLM Guindastes*\n` +
-      `📋 Cliente: ${s.cliente}\n` +
-      `📍 Local: ${s.localidade}\n` +
-      `📅 Data: ${new Date(s.dataInicio).toLocaleDateString('pt-BR')}${s.dataFim ? ` até ${new Date(s.dataFim).toLocaleDateString('pt-BR')}` : ''}\n` +
-      `🚛 Veículo: ${s.veiculo ? (s.veiculo.apelido || s.veiculo.nome) : 'A definir'}\n` +
-      (s.funcionario ? `👷 Operador: ${s.funcionario.nome}\n` : '') +
-      (s.descricao ? `📝 Descrição: ${s.descricao}\n` : '') +
-      (s.solicitante ? `👤 Responsável: ${s.solicitante}\n` : '') +
-      (s.contatoPagamento ? `📞 Contato: ${s.contatoPagamento}\n` : '') +
-      `\n_KLM Guindastes — Qualidade com Segurança_`;
+  const getOrCreateToken = async (servicoId: number): Promise<string | null> => {
+    try {
+      const res = await fetch(`/api/servicos/${servicoId}/token`, { method: 'POST' });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.url;
+    } catch { return null; }
+  };
+
+  const handleWhatsApp = async (s: any) => {
+    const url = await getOrCreateToken(s.id);
+    if (!url) { showToast('Erro ao gerar link'); return; }
+    const osNum = s.id.toString().padStart(4, '0');
+    const text = `OS #${osNum} — KLM Guindastes\nAcesse os detalhes da sua ordem de serviço:\n${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const handleCopyLink = async (s: any) => {
+    const url = await getOrCreateToken(s.id);
+    if (!url) { showToast('Erro ao gerar link'); return; }
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    showToast('Link copiado!');
   };
 
   if (loading) return <div className="loading" style={{ minHeight: '100vh' }}><div className="loading-spinner" /></div>;
@@ -457,12 +476,14 @@ export default function ServicosPage() {
                     KLM Guindastes — Qualidade com Segurança
                   </div>
                 </div>
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: 16 }} onClick={() => {
-                  navigator.clipboard?.writeText(generateOsText(osPreview));
-                  showToast('OS copiada! Cole no WhatsApp.');
-                }}>
-                  <Copy size={16} /> Copiar OS para WhatsApp
-                </button>
+                <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => handleWhatsApp(osPreview)}>
+                    <Share2 size={16} /> Abrir no WhatsApp
+                  </button>
+                  <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => handleCopyLink(osPreview)}>
+                    <Link size={16} /> Copiar Link
+                  </button>
+                </div>
               </div>
             </div>
           </div>

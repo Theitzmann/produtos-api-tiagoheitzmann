@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -62,6 +62,9 @@ model Servico {
   tipoServico           String?      // POR_HORA | POR_HORA_KM
   valores               String?      // Pricing details (free text)
   formaPagamento        String?      // Payment method
+  // Public sharing token (generated on demand for WhatsApp sharing)
+  tokenPublico          String?      @unique
+  tokenExpiraEm         DateTime?
   // Meta
   criadoPorId           Int
   criadoEm              DateTime     @default(now())
