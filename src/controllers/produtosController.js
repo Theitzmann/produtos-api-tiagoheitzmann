@@ -85,7 +85,22 @@ const atualizar = (req, res) => {
 };
 
 const remover = (req, res) => {
-    // TODO
+    const remover = (req, res) => {
+    // Pegamos o ID da URL e buscamos a posição do produto no array
+    const id = parseInt(req.params.id, 10);
+    const idx = produtos.findIndex(p => p.id === id);
+
+    // Se não encontrar, retorna o erro 404 exigido
+    if (idx === -1) {
+        return res.status(404).json({ erro: "Produto não encontrado" });
+    }
+
+    // Remove 1 item do array a partir da posição encontrada
+    produtos.splice(idx, 1);
+
+    // Retorna 204 No Content (usamos .send() vazio em vez de .json())
+    res.status(204).send();
+};
 };
 
 module.exports = {
