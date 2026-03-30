@@ -53,7 +53,35 @@ const criar = (req, res) => {
 };
 
 const atualizar = (req, res) => {
-    // TODO
+    const atualizar = (req, res) => {
+    // Busca o índice do produto no array
+    const id = parseInt(req.params.id, 10);
+    const idx = produtos.findIndex(p => p.id === id);
+
+    // Se não encontrar (índice -1), retorna o 404 exigido
+    if (idx === -1) {
+        return res.status(404).json({ erro: "Produto não encontrado" });
+    }
+
+    // Pega os dados enviados no corpo da requisição
+    const { nome, descricao, preco, categoria, estoque, ativo } = req.body;
+
+    // Atualiza o produto na mesma posição do array
+    // O ...produtos[idx] garante que o id e criado_em originais não sejam perdidos
+    produtos[idx] = {
+        ...produtos[idx],
+        nome,
+        descricao,
+        preco,
+        categoria,
+        estoque,
+        ativo,
+        atualizado_em: new Date().toISOString()
+    };
+
+    // Retorna o produto atualizado com status 200 OK
+    res.status(200).json(produtos[idx]);
+};
 };
 
 const remover = (req, res) => {
