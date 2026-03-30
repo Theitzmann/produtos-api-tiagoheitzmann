@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const produtosRouter = require('./routes/produtos');
 
 // Middleware para interpretar JSON no corpo das requisições
 app.use(express.json());
@@ -10,7 +11,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// (As rotas serão registradas aqui no futuro)
+// Registrando as rotas da nossa API
+app.use('/api/v1/produtos', produtosRouter);
 
 // Middleware de erro global
 app.use((err, req, res, next) => {
